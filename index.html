@@ -2,35 +2,511 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Placeholder Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Snake.io</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
+            overflow: hidden;
+            background: #0a0a1a;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #fff;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        #gameCanvas {
+            display: block;
+            position: absolute;
+            top: 0; left: 0;
+        }
+
+        /* HUD */
+        #hud {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+        }
+        #hud > * { pointer-events: auto; }
+
+        #scoreDisplay {
+            position: absolute;
+            top: 15px; left: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+        }
+        #scoreDisplay span { color: #ffd700; }
+
+        #leaderboard {
+            position: absolute;
+            top: 15px; right: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 12px 16px;
+            min-width: 160px;
+            backdrop-filter: blur(5px);
+        }
+        #leaderboard h3 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+            margin-bottom: 8px;
+        }
+        .lb-entry {
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            gap: 8px;
+            padding: 3px 0;
+            font-size: 14px;
         }
-        .container {
+        .lb-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .lb-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .lb-score { color: #aaa; font-size: 12px; }
+        .lb-entry.me .lb-name { color: #ffd700; font-weight: bold; }
+
+        #minimapContainer {
+            position: absolute;
+            bottom: 15px; right: 15px;
+        }
+        #minimapCanvas {
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+
+        /* Screens */
+        .overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10,10,26,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 10;
+            pointer-events: auto;
+        }
+        .overlay.hidden { display: none; }
+
+        .screen-box {
             text-align: center;
+            max-width: 360px;
+            width: 90%;
         }
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+        .screen-box h1 {
+            font-size: 48px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #39ff14, #00bfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        p {
-            font-size: 1.2rem;
+        .screen-box p {
+            color: #aaa;
+            margin-bottom: 24px;
+            font-size: 16px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus {
+            border-color: #39ff14;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .color-swatch {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        .color-swatch:hover { transform: scale(1.15); }
+        .color-swatch.selected { border-color: #fff; transform: scale(1.2); }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 48px;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            color: #000;
+            background: linear-gradient(135deg, #39ff14, #00cc44);
+            box-shadow: 0 4px 20px rgba(57,255,20,0.3);
+        }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 6px 30px rgba(57,255,20,0.4); }
+        .btn:active { transform: scale(0.98); }
+
+        /* Death screen */
+        #deathScreen .final-score {
+            font-size: 64px;
+            font-weight: bold;
+            color: #ffd700;
+            margin: 16px 0 8px;
+        }
+        #deathScreen h2 {
+            color: #ff4444;
+            font-size: 28px;
+        }
+
+        /* Mobile controls */
+        #mobileControls {
+            display: none;
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            pointer-events: none;
+        }
+        #mobileControls > * { pointer-events: auto; }
+
+        #joystickZone {
+            position: absolute;
+            bottom: 20px; left: 20px;
+            width: 140px; height: 140px;
+        }
+        #joystickBase {
+            position: absolute;
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: 2px solid rgba(255,255,255,0.15);
+            left: 10px; top: 10px;
+        }
+        #joystickThumb {
+            position: absolute;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            left: 45px; top: 45px;
+            transition: none;
+        }
+
+        #boostBtn {
+            position: absolute;
+            bottom: 40px; right: 30px;
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: rgba(255,100,0,0.3);
+            border: 3px solid rgba(255,100,0,0.5);
+            color: #ff6600;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #boostBtn.active {
+            background: rgba(255,100,0,0.5);
+            border-color: #ff6600;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            #leaderboard { display: none; }
+            #scoreDisplay { font-size: 16px; }
+            .screen-box h1 { font-size: 32px; }
+            #mobileControls { display: block; }
+            #minimapContainer { bottom: 170px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Coming Soon</h1>
-        <p>This site is under construction.</p>
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="hud">
+        <div id="scoreDisplay" class="hidden">Score: <span id="scoreValue">0</span> | Length: <span id="lengthValue">10</span></div>
+        <div id="leaderboard" class="hidden">
+            <h3>Leaderboard</h3>
+            <div id="leaderboardList"></div>
+        </div>
+        <div id="minimapContainer" class="hidden">
+            <canvas id="minimapCanvas" width="130" height="130"></canvas>
+        </div>
     </div>
+
+    <div id="mobileControls" class="hidden">
+        <div id="joystickZone">
+            <div id="joystickBase"></div>
+            <div id="joystickThumb"></div>
+        </div>
+        <div id="boostBtn">BOOST</div>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="startScreen" class="overlay">
+        <div class="screen-box">
+            <h1>Snake.io</h1>
+            <p>Eat, grow, and dominate the arena</p>
+            <div class="input-group">
+                <input type="text" id="nameInput" placeholder="Enter your name" maxlength="15" autocomplete="off">
+            </div>
+            <div class="color-picker" id="colorPicker"></div>
+            <button class="btn" id="playBtn">Play</button>
+        </div>
+    </div>
+
+    <!-- Death Screen -->
+    <div id="deathScreen" class="overlay hidden">
+        <div class="screen-box">
+            <h2>You Died!</h2>
+            <div class="final-score" id="finalScore">0</div>
+            <p>Better luck next time</p>
+            <button class="btn" id="replayBtn">Play Again</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script src="renderer.js"></script>
+    <script>
+    (function() {
+        // ---- Setup ----
+        const canvas = document.getElementById('gameCanvas');
+        const minimapCanvas = document.getElementById('minimapCanvas');
+        const game = new Game();
+        const renderer = new Renderer(canvas, minimapCanvas, game);
+
+        // Elements
+        const startScreen = document.getElementById('startScreen');
+        const deathScreen = document.getElementById('deathScreen');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const scoreValue = document.getElementById('scoreValue');
+        const lengthValue = document.getElementById('lengthValue');
+        const leaderboardEl = document.getElementById('leaderboard');
+        const leaderboardList = document.getElementById('leaderboardList');
+        const minimapContainer = document.getElementById('minimapContainer');
+        const mobileControls = document.getElementById('mobileControls');
+        const nameInput = document.getElementById('nameInput');
+        const colorPicker = document.getElementById('colorPicker');
+        const playBtn = document.getElementById('playBtn');
+        const replayBtn = document.getElementById('replayBtn');
+        const finalScore = document.getElementById('finalScore');
+        const joystickThumb = document.getElementById('joystickThumb');
+        const boostBtn = document.getElementById('boostBtn');
+
+        let selectedColor = 0;
+
+        // ---- Color Picker ----
+        COLOR_PALETTES.forEach((pal, i) => {
+            const swatch = document.createElement('div');
+            swatch.className = 'color-swatch' + (i === 0 ? ' selected' : '');
+            swatch.style.background = pal.body;
+            swatch.addEventListener('click', () => {
+                document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+                swatch.classList.add('selected');
+                selectedColor = i;
+            });
+            colorPicker.appendChild(swatch);
+        });
+
+        // ---- Start / Replay ----
+        function startPlaying() {
+            const name = nameInput.value.trim() || 'Player';
+            game.startGame(name, selectedColor);
+            startScreen.classList.add('hidden');
+            deathScreen.classList.add('hidden');
+            showHUD(true);
+        }
+
+        playBtn.addEventListener('click', startPlaying);
+        nameInput.addEventListener('keydown', e => { if (e.key === 'Enter') startPlaying(); });
+        replayBtn.addEventListener('click', () => {
+            const name = nameInput.value.trim() || 'Player';
+            game.respawn(name, selectedColor);
+            deathScreen.classList.add('hidden');
+            showHUD(true);
+        });
+
+        function showHUD(visible) {
+            const method = visible ? 'remove' : 'add';
+            scoreDisplay.classList[method]('hidden');
+            leaderboardEl.classList[method]('hidden');
+            minimapContainer.classList[method]('hidden');
+            if (game.isMobile) mobileControls.classList[method]('hidden');
+        }
+
+        // ---- Desktop Input ----
+        canvas.addEventListener('mousemove', e => {
+            game.handleMouseMove(e.clientX, e.clientY, canvas.width, canvas.height);
+        });
+        canvas.addEventListener('mousedown', () => game.handleBoost(true));
+        canvas.addEventListener('mouseup', () => game.handleBoost(false));
+        document.addEventListener('keydown', e => {
+            if (e.code === 'Space') { e.preventDefault(); game.handleBoost(true); }
+        });
+        document.addEventListener('keyup', e => {
+            if (e.code === 'Space') game.handleBoost(false);
+        });
+
+        // ---- Mobile Input ----
+        let joystickTouchId = null;
+        const joystickZone = document.getElementById('joystickZone');
+        const joystickBase = document.getElementById('joystickBase');
+
+        joystickZone.addEventListener('touchstart', e => {
+            e.preventDefault();
+            const touch = e.changedTouches[0];
+            joystickTouchId = touch.identifier;
+            const rect = joystickBase.getBoundingClientRect();
+            game.joystick.startX = rect.left + rect.width / 2;
+            game.joystick.startY = rect.top + rect.height / 2;
+            game.joystick.active = true;
+        }, { passive: false });
+
+        document.addEventListener('touchmove', e => {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const t = e.changedTouches[i];
+                if (t.identifier === joystickTouchId) {
+                    const dx = t.clientX - game.joystick.startX;
+                    const dy = t.clientY - game.joystick.startY;
+                    const maxR = 45;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const clampedDist = Math.min(dist, maxR);
+                    const angle = Math.atan2(dy, dx);
+                    const cx = Math.cos(angle) * clampedDist;
+                    const cy = Math.sin(angle) * clampedDist;
+                    joystickThumb.style.left = (45 + cx) + 'px';
+                    joystickThumb.style.top = (45 + cy) + 'px';
+                    game.handleJoystick(dx, dy);
+                }
+            }
+        }, { passive: false });
+
+        document.addEventListener('touchend', e => {
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                if (e.changedTouches[i].identifier === joystickTouchId) {
+                    joystickTouchId = null;
+                    game.joystick.active = false;
+                    joystickThumb.style.left = '45px';
+                    joystickThumb.style.top = '45px';
+                }
+            }
+        });
+
+        boostBtn.addEventListener('touchstart', e => {
+            e.preventDefault();
+            game.handleBoost(true);
+            boostBtn.classList.add('active');
+        }, { passive: false });
+        boostBtn.addEventListener('touchend', e => {
+            game.handleBoost(false);
+            boostBtn.classList.remove('active');
+        });
+
+        // ---- HUD Update ----
+        function updateHUD() {
+            const player = game.getPlayer();
+            if (player && player.alive) {
+                scoreValue.textContent = player.score;
+                lengthValue.textContent = player.segments.length;
+            }
+
+            // Leaderboard
+            leaderboardList.innerHTML = '';
+            game.leaderboard.forEach((entry, i) => {
+                const div = document.createElement('div');
+                div.className = 'lb-entry' + (entry.isPlayer ? ' me' : '');
+                div.innerHTML = `<div class="lb-dot" style="background:${entry.color}"></div>` +
+                    `<div class="lb-name">${entry.name}</div>` +
+                    `<div class="lb-score">${entry.score}</div>`;
+                leaderboardList.appendChild(div);
+            });
+
+            // Death screen
+            if (game.gameState === 'dead' && deathScreen.classList.contains('hidden')) {
+                finalScore.textContent = game.score;
+                deathScreen.classList.remove('hidden');
+                showHUD(false);
+            }
+        }
+
+        // ---- Game Loop ----
+        const TICK_RATE = 1 / 60;
+        let lastTime = performance.now();
+        let accumulator = 0;
+        let hudTimer = 0;
+
+        function loop(now) {
+            const frameDt = Math.min((now - lastTime) / 1000, 0.1);
+            lastTime = now;
+            accumulator += frameDt;
+            hudTimer += frameDt;
+
+            // Fixed timestep updates
+            while (accumulator >= TICK_RATE) {
+                if (game.gameState === 'playing') {
+                    game.update(TICK_RATE);
+                } else if (game.gameState === 'menu' || game.gameState === 'dead') {
+                    game.updateBackground(TICK_RATE);
+                }
+                accumulator -= TICK_RATE;
+            }
+
+            // Render
+            // In menu/dead, set camera to follow a bot for background animation
+            if (game.gameState === 'menu' || game.gameState === 'dead') {
+                for (let i = 0; i < game.snakes.length; i++) {
+                    if (game.snakes[i].alive) {
+                        const head = game.snakes[i].segments[0];
+                        game.camera.x += (head.x - game.camera.x) * 2 * frameDt;
+                        game.camera.y += (head.y - game.camera.y) * 2 * frameDt;
+                        break;
+                    }
+                }
+                game.camera.zoom = 1;
+            }
+
+            renderer.render();
+
+            // HUD at 10fps
+            if (hudTimer > 0.1) {
+                hudTimer = 0;
+                updateHUD();
+            }
+
+            requestAnimationFrame(loop);
+        }
+
+        // Prevent context menu and scrolling
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('touchmove', e => { if (game.gameState === 'playing') e.preventDefault(); }, { passive: false });
+
+        // Start
+        requestAnimationFrame(loop);
+
+        // Show mobile controls if needed
+        if (game.isMobile) {
+            mobileControls.style.display = 'block';
+            mobileControls.classList.add('hidden');
+        }
+    })();
+    </script>
 </body>
 </html>
