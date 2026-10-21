@@ -1,0 +1,98 @@
+.gameover {
+  background: rgba(5, 8, 14, 0.28);
+  backdrop-filter: blur(8px);
+}
+
+.over-panel {
+  width: min(420px, calc(100vw - 28px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 22px 22px;
+  text-align: center;
+}
+
+.over-panel h2 {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 2.8rem);
+  letter-spacing: -0.04em;
+}
+
+.cause {
+  margin: 0;
+  color: #ffd1ef;
+  font-weight: 700;
+}
+
+.length-hero {
+  margin: 8px 0 0;
+  font-size: clamp(3.2rem, 10vw, 4.6rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: #7cff4f;
+  text-shadow: 0 0 24px rgba(124, 255, 79, 0.35);
+}
+
+.length-label {
+  margin: 0 0 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: rgba(244, 247, 251, 0.6);
+}
+
+.over-stats {
+  width: 100%;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.over-stats div {
+  padding: 10px 6px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.28);
+}
+
+.over-stats dt {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(244, 247, 251, 0.55);
+}
+
+.over-stats dd {
+  margin: 4px 0 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.personal {
+  margin: 6px 0 0;
+  font-weight: 800;
+}
+
+.badge {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #ff5fc8;
+  color: #2a041c;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.badge[hidden] {
+  display: none;
+}
+
+.over-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
