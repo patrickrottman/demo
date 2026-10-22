@@ -1,0 +1,15 @@
+.pause {
+  background: rgba(5, 8, 14, 0.18);
+}
+
+.pause-card {
+  padding: 18px 36px;
+  border-radius: 18px;
+  background: rgba(8, 12, 20, 0.72);
+  border: 1px solid rgba(47, 216, 255, 0.35);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}

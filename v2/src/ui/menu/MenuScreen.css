@@ -1,0 +1,126 @@
+.menu {
+  background: radial-gradient(
+    circle at 50% 30%,
+    rgba(47, 216, 255, 0.12),
+    rgba(5, 8, 14, 0.55) 42%,
+    rgba(5, 8, 14, 0.72)
+  );
+  backdrop-filter: blur(14px) saturate(1.15);
+}
+
+.menu-panel {
+  width: min(460px, calc(100vw - 28px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 22px 20px;
+}
+
+.logo {
+  margin: 0;
+  font-size: clamp(4.4rem, 13vw, 7.4rem);
+  line-height: 0.82;
+  font-weight: 900;
+  letter-spacing: -0.07em;
+  background: linear-gradient(110deg, #7cff4f 0%, #2fd8ff 42%, #ff5fc8 78%, #7cff4f 100%);
+  background-size: 220% 220%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: logo-shift 7s ease-in-out infinite;
+  filter: drop-shadow(0 10px 24px rgba(47, 216, 255, 0.28));
+}
+
+.logo span {
+  font-weight: 800;
+}
+
+@keyframes logo-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.nick {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(232, 241, 255, 0.62);
+}
+
+.nick input {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 1.05rem;
+  font-weight: 650;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.38);
+  color: #f7fbff;
+}
+
+.nick input:focus {
+  border-color: #2fd8ff;
+  box-shadow: 0 0 0 3px rgba(47, 216, 255, 0.22);
+}
+
+.picker-host {
+  width: 100%;
+}
+
+.hint {
+  margin: 0;
+  text-align: center;
+  color: rgba(232, 241, 255, 0.62);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.best {
+  margin: 0;
+  font-weight: 800;
+  color: #7cff4f;
+  letter-spacing: 0.04em;
+}
+
+.text-btn {
+  border: 0;
+  background: transparent;
+  color: rgba(232, 241, 255, 0.72);
+  font-weight: 700;
+  padding: 4px 8px;
+}
+
+.text-btn[aria-pressed='true'] {
+  color: #ff5fc8;
+}
+
+@media (max-width: 640px) {
+  .menu-panel {
+    padding: 18px 14px 14px;
+    gap: 12px;
+  }
+
+  .skin-preview {
+    height: 84px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo {
+    animation: none;
+  }
+}
