@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Snake.io, seven months apart</title>
+  <meta name="description" content="Snake.io built twice with Claude in Cursor, March 2026 and October 2026.">
+  <meta name="theme-color" content="#070b14">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="glow" aria-hidden="true">
+    <span class="blob blob-a"></span>
+    <span class="blob blob-b"></span>
+    <span class="blob blob-c"></span>
+  </div>
+
+  <main id="landing">
+    <header class="hero">
+      <p class="kicker">March 2026 <span aria-hidden="true">→</span> October 2026</p>
+      <h1>Snake.io, seven months apart</h1>
+      <p class="lede">
+        The same game idea built twice with Claude in Cursor, once in March 2026 and again in
+        October 2026, so you can play them side by side and see how far AI-assisted development moved.
+      </p>
+    </header>
+
+    <section class="cards" aria-label="The two builds">
+      <article class="card card-og">
+        <header class="card-head">
+          <h2>OG</h2>
+          <p>March 10, 2026 · Claude Opus 4.6</p>
+        </header>
+        <dl class="stats">
+          <div><dt>Files</dt><dd>3</dd></div>
+          <div><dt>Lines</dt><dd>1,288</dd></div>
+          <div><dt>Language</dt><dd>Plain JS</dd></div>
+          <div><dt>Tests</dt><dd>0</dd></div>
+        </dl>
+        <ul class="pills">
+          <li>12 bots</li>
+          <li>600 food</li>
+          <li>Single canvas renderer</li>
+        </ul>
+        <a class="play play-og" href="./og/">Play OG</a>
+      </article>
+
+      <article class="card card-v2">
+        <header class="card-head">
+          <h2>v2</h2>
+          <p>October 20, 2026 · Claude Opus 5.5 architect, Grok 4.7 subagents in parallel</p>
+        </header>
+        <dl class="stats">
+          <div><dt>Source files</dt><dd>116</dd></div>
+          <div><dt>TypeScript</dt><dd>5,565</dd></div>
+          <div><dt>Tests</dt><dd>90</dd></div>
+          <div><dt>Test files</dt><dd>29</dd></div>
+          <div><dt>Gzipped</dt><dd>25 KB</dd></div>
+        </dl>
+        <p class="modules">
+          11 modules: core simulation, AI, renderer, UI, input, audio, storage, config, content, game,
+          styles. Strict TypeScript.
+        </p>
+        <ul class="pills">
+          <li>30 bots with personalities</li>
+          <li>3,200 food</li>
+          <li>16 skins</li>
+          <li>Path-following bodies</li>
+          <li>Food suction</li>
+          <li>Synthesized audio</li>
+          <li>Minimap</li>
+          <li>Leaderboard</li>
+          <li>Kill feed</li>
+          <li>Mobile controls</li>
+        </ul>
+        <a class="play play-v2" href="./v2/">Play v2</a>
+      </article>
+    </section>
+
+    <section class="strip" aria-labelledby="how-title">
+      <h2 id="how-title">How v2 was built</h2>
+      <ol>
+        <li>
+          <span>1</span>
+          <p>Architect writes typed contracts and config.</p>
+        </li>
+        <li>
+          <span>2</span>
+          <p>Four Grok agents build core, AI, renderer, and the app shell in parallel against those contracts.</p>
+        </li>
+        <li>
+          <span>3</span>
+          <p>Architect integrates the modules.</p>
+        </li>
+        <li>
+          <span>4</span>
+          <p>Verify with typecheck, 90 tests, and Prettier, then ship.</p>
+        </li>
+      </ol>
+    </section>
+
+    <div class="cta">
+      <button type="button" id="play-versus">Play side by side</button>
+    </div>
+  </main>
+
+  <footer id="site-footer">
+    <p>Built with Cursor</p>
+    <a href="https://github.com/patrickrottman/demo">GitHub repo</a>
+  </footer>
+
+  <section id="versus" class="versus" hidden aria-label="Side by side play">
+    <header class="bar">
+      <button type="button" id="back">Back</button>
+      <div class="bar-sides">
+        <div class="side-meta" data-side="og">
+          <span>OG · Opus 4.6 · Mar 2026</span>
+          <a href="./og/" target="_blank" rel="noopener noreferrer">Open fullscreen</a>
+        </div>
+        <button type="button" id="swap-sides">Swap sides</button>
+        <div class="side-meta" data-side="v2">
+          <span>v2 · Opus 5.5 + Grok · Oct 2026</span>
+          <a href="./v2/" target="_blank" rel="noopener noreferrer">Open fullscreen</a>
+        </div>
+      </div>
+    </header>
+    <div class="hint" id="hint">
+      <p>Click a game to focus it — keyboard controls go to the focused side.</p>
+      <button type="button" id="dismiss-hint">Dismiss</button>
+    </div>
+    <div class="split" id="split"></div>
+  </section>
+
+  <script src="./compare.js"></script>
+</body>
+</html>
